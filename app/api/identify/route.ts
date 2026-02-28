@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  findContactsByEmailOrPhone,
+  createContact,
+  updateContact,
+  getPrimaryContact,
+  getContactById,
+  getContactChain,
+} from "@/lib/db";
 
-
+type IdentifyRequest = { email?: string; phoneNumber?: string };
+type IdentifyResponse = {
+  contact: {
+    primaryContactId: number;
+    emails: string[];
+    phoneNumbers: string[];
+    secondaryContactIds: number[];
+  };
+};
 
 export async function POST(request: NextRequest) {
   try {
