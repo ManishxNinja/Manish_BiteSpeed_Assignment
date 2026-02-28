@@ -33,7 +33,7 @@ export default function Home() {
     setResponse(null);
 
     try {
-      const res = await fetch('/api/identify', {
+      const res = await fetch('/identify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
