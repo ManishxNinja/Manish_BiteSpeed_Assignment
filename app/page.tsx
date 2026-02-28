@@ -156,7 +156,7 @@ export default function Home() {
                   </h3>
                   <ul className="space-y-1">
                     {response.contact.emails.map((email, i) => (
-                      <li key={i} className="text-sm p-2 bg-muted rounded">
+                      <li key={i} className="text-sm p-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded">
                         {email}
                       </li>
                     ))}
@@ -171,7 +171,7 @@ export default function Home() {
                   </h3>
                   <ul className="space-y-1">
                     {response.contact.phoneNumbers.map((phone, i) => (
-                      <li key={i} className="text-sm p-2 bg-muted rounded">
+                      <li key={i} className="text-sm p-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded">
                         {phone}
                       </li>
                     ))}
@@ -189,7 +189,7 @@ export default function Home() {
                     {response.contact.secondaryContactIds.map((id) => (
                       <span
                         key={id}
-                        className="px-3 py-1 bg-muted text-sm rounded-full"
+                        className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm rounded-full"
                       >
                         {id}
                       </span>
@@ -203,7 +203,7 @@ export default function Home() {
                   <summary className="text-sm font-medium text-muted-foreground hover:text-foreground">
                     View Raw JSON
                   </summary>
-                  <pre className="mt-4 p-4 bg-muted rounded text-xs overflow-auto max-h-48">
+                  <pre className="mt-4 p-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded text-xs overflow-auto max-h-48">
                     {JSON.stringify(response, null, 2)}
                   </pre>
                 </details>
