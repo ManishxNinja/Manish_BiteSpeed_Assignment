@@ -11,9 +11,6 @@ export type Contact = {
   deletedAt: Date | null;
 };
 
-/**
- * Find contacts by email and/or phone number
- */
 export async function findContactsByEmailOrPhone(
   email?: string,
   phoneNumber?: string
@@ -31,9 +28,6 @@ export async function findContactsByEmailOrPhone(
   return contacts as Contact[];
 }
 
-/**
- * Get a contact by ID
- */
 export async function getContactById(id: number): Promise<Contact | null> {
   const contact = await prisma.contact.findFirst({
     where: { id, deletedAt: null },
@@ -41,9 +35,6 @@ export async function getContactById(id: number): Promise<Contact | null> {
   return contact as Contact | null;
 }
 
-/**
- * Create a new contact
- */
 export async function createContact(
   email: string | null,
   phoneNumber: string | null,
@@ -61,9 +52,6 @@ export async function createContact(
   return contact as Contact;
 }
 
-/**
- * Update contact's linked ID and precedence
- */
 export async function updateContact(
   id: number,
   linkedId: number | null,
@@ -76,9 +64,6 @@ export async function updateContact(
   return contact as Contact;
 }
 
-/**
- * Get all secondary contacts linked to a primary
- */
 export async function getSecondaryContacts(primaryId: number): Promise<Contact[]> {
   const contacts = await prisma.contact.findMany({
     where: { linkedId: primaryId, deletedAt: null },
@@ -87,9 +72,6 @@ export async function getSecondaryContacts(primaryId: number): Promise<Contact[]
   return contacts as Contact[];
 }
 
-/**
- * Get the primary contact (traverse upwards through linkedId chain)
- */
 export async function getPrimaryContact(contactId: number): Promise<Contact | null> {
   const currentId = contactId;
   let contact = await getContactById(currentId);
@@ -104,9 +86,6 @@ export async function getPrimaryContact(contactId: number): Promise<Contact | nu
   return contact;
 }
 
-/**
- * Get all contacts in a chain (primary + all secondaries recursively)
- */
 export async function getContactChain(primaryId: number): Promise<Contact[]> {
   const chain: Contact[] = [];
   const visited = new Set<number>();
@@ -130,9 +109,6 @@ export async function getContactChain(primaryId: number): Promise<Contact[]> {
   return chain;
 }
 
-/**
- * Close the database connection pool
- */
 export async function closePool(): Promise<void> {
   await prisma.$disconnect();
 }

@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
     const body: IdentifyRequest = await request.json();
     const { email, phoneNumber } = body;
 
-    // Validate input
     if (!email && !phoneNumber) {
       return NextResponse.json(
         { error: 'Either email or phoneNumber must be provided' },
@@ -31,10 +30,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find existing contacts with matching email or phone
     const existingContacts = await findContactsByEmailOrPhone(email, phoneNumber);
 
-    // If no contacts found, create a new primary contact
     if (existingContacts.length === 0) {
       const newContact = await createContact(email || null, phoneNumber || null);
       const response: IdentifyResponse = {
@@ -48,7 +45,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 200 });
     }
 
-    // Get all unique primary IDs from existing contacts
     const primaryIds = new Set<number>();
     for (const contact of existingContacts) {
       const primary = await getPrimaryContact(contact.id);
@@ -57,20 +53,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If multiple primaries found, consolidate: keep oldest as primary
     let primaryContactId: number;
-    const primaryArray = Array.from(primaryIds).sort((a, b) => a - b); // Lower ID = older
+    const primaryArray = Array.from(primaryIds).sort((a, b) => a - b);
 
     if (primaryArray.length > 1) {
-      // The oldest primary becomes the main primary
       primaryContactId = primaryArray[0];
 
-      // All other primaries become secondary to the oldest
       for (let i = 1; i < primaryArray.length; i++) {
         const secondaryId = primaryArray[i];
         await updateContact(secondaryId, primaryContactId, 'secondary');
 
-        // Update all secondaries of this contact to point to the new primary
         const secondaries = await getContactChain(secondaryId);
         for (const secondary of secondaries) {
           if (secondary.id !== secondaryId) {
@@ -82,28 +74,23 @@ export async function POST(request: NextRequest) {
       primaryContactId = primaryArray[0];
     }
 
-    // If the input email/phone is not yet linked to the primary, create a secondary or update
-    const isPrimaryLinked = existingContacts.some((c) => c.id === primaryContactId);
-    const isAlreadyLinked = existingContacts.some(
-      (c) =>
-        c.linkedId === primaryContactId ||
-        c.id === primaryContactId
-    );
+    let contactChain = await getContactChain(primaryContactId);
+    const emailsInChain = new Set(contactChain.map((c) => c.email).filter(Boolean));
+    const phonesInChain = new Set(contactChain.map((c) => c.phoneNumber).filter(Boolean));
+    const emailInChain = !email || emailsInChain.has(email);
+    const phoneInChain = !phoneNumber || phonesInChain.has(phoneNumber);
+    const hasNewInfo = !emailInChain || !phoneInChain;
 
-    if (!isAlreadyLinked && !isPrimaryLinked) {
-      // Create a new secondary contact
-      const newContact = await createContact(
+    if (hasNewInfo) {
+      await createContact(
         email || null,
         phoneNumber || null,
         primaryContactId,
         'secondary'
       );
+      contactChain = await getContactChain(primaryContactId);
     }
 
-    // Get the complete contact chain
-    const contactChain = await getContactChain(primaryContactId);
-
-    // Consolidate all emails and phone numbers
     const emailSet = new Set<string>();
     const phoneSet = new Set<string>();
     const secondaryIds: number[] = [];
@@ -116,7 +103,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Sort with primary's email/phone first
     const primaryContact = await getContactById(primaryContactId);
     const emails = Array.from(emailSet).sort((a, b) => {
       if (primaryContact?.email === a) return -1;

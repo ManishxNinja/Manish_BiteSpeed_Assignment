@@ -66,7 +66,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-2xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold tracking-tight">
@@ -212,6 +212,6 @@ export default function Home() {
           </Card>
         )}
       </div>
-    </main>
+    </div>
   );
 }
